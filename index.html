@@ -21,10 +21,7 @@ header{position:sticky;top:0;z-index:5;background:#101010ed;border-bottom:1px so
   <div class="loginbox card pad">
     <div class="logo">SPOTFY <span>PAY</span></div>
     <div class="sub">Gestão inteligente de pagamentos</div>
-    <div class="switch">
-      <button id="clientMode" class="active" onclick="setMode('client')">Área do Cliente</button>
-      <button id="adminMode" onclick="setMode('admin')">Painel Admin</button>
-    </div>
+    <div class="access">🔐 Acesso único — o sistema identifica automaticamente se sua conta é <b>Cliente</b> ou <b>Administrador</b>.</div>
     <div class="field"><label>E-mail</label><input id="email" type="email" autocomplete="username" placeholder="seu@email.com"></div>
     <div class="field"><label>Senha</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
     <button class="primary" onclick="login()">ENTRAR</button>
@@ -84,12 +81,11 @@ header{position:sticky;top:0;z-index:5;background:#101010ed;border-bottom:1px so
 const SUPABASE_URL='https://zfubayucdwlqzdojqufx.supabase.co';
 const SUPABASE_KEY='sb_publishable_JsY4iN_lv2IIuSWbpYVuew_T2KG5eQu';
 const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let mode='client', me=null, settings=null;
+let me=null, settings=null;
 
 const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 function toast(msg,bad=false){const x=document.createElement('div');x.className='toast';x.style.borderLeftColor=bad?'#ff4444':'#1ed760';x.textContent=msg;document.body.appendChild(x);setTimeout(()=>x.remove(),3500)}
-function setMode(m){mode=m;clientMode.classList.toggle('active',m==='client');adminMode.classList.toggle('active',m==='admin')}
 async function login(){
   loginMsg.textContent='Entrando...';
   const {data,error}=await supabase.auth.signInWithPassword({email:email.value.trim(),password:password.value});
@@ -100,9 +96,7 @@ async function startApp(user){
   const {data:p,error}=await supabase.from('profiles').select('*').eq('id',user.id).single();
   if(error||!p||!p.active){await supabase.auth.signOut();loginMsg.textContent='Usuário sem acesso.';return}
   me=p;
-  if(mode==='admin'&&p.role!=='admin'){toast('Esta conta não é administradora',true);await supabase.auth.signOut();return}
-  if(mode==='client'&&p.role!=='client'){toast('Selecione Painel Admin para esta conta',true);await supabase.auth.signOut();return}
-  loginScreen.classList.add('hidden');app.classList.remove('hidden');identity.textContent=p.name;
+loginScreen.classList.add('hidden');app.classList.remove('hidden');identity.textContent=p.name;
   if(p.role==='admin'){adminPanel.classList.remove('hidden');await loadAdmin()}else{clientPanel.classList.remove('hidden');clientName.textContent=p.name;await loadClient()}
 }
 async function logout(){await supabase.auth.signOut();location.reload()}
