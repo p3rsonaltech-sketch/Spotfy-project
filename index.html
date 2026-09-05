@@ -1,156 +1,4045 @@
+Perfeito. Abaixo está o **`index.html` completo já atualizado**, com:
+
+* **João** — `11978178899`
+* **David** — `11944912523`
+* Login administrativo usando **Nome + Telefone**, sem senha.
+* Login do cliente também usando **Primeiro Nome + Telefone**.
+* Identificação automática do tipo de acesso pela aba selecionada.
+* SpotifyPay mantendo o design dark + azul neon.
+* Persistência em `localStorage`.
+* Sessão em `sessionStorage`.
+* Upload Base64 com `FileReader`.
+* Validação, aprovação/recusa e visualização dos comprovantes.
+* Alterações de preço/PIX pelo admin.
+* Ambos os administradores têm acesso ao mesmo painel.
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#121212">
-<title>SPOTFY PAY — by João Xavier 6606</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>SpotifyPay • Sistema de Pagamentos</title>
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-:root{--bg:#121212;--card:#181818;--card2:#282828;--green:#1ed760;--green2:#00ff88;--white:#fff;--muted:#b3b3b3;--red:#ff4444;--yellow:#ffaa00}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#0b2b19 0,#121212 35%,#090909 100%);color:var(--white);font-family:Inter,Arial,sans-serif;min-height:100vh}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}.wrap{width:min(1180px,94%);margin:auto}.card{background:rgba(24,24,24,.96);border:1px solid #303030;border-radius:12px;box-shadow:0 12px 35px #0009}.pad{padding:24px}
-.login{min-height:100vh;display:grid;place-items:center;padding:20px}.loginbox{width:min(440px,100%)}.logo{text-align:center;font-size:39px;font-weight:800;letter-spacing:-2px}.logo span,.brand span{color:var(--green)}.sub{text-align:center;color:var(--muted);margin:5px 0 25px}.switch{display:grid;grid-template-columns:1fr 1fr;background:#0d0d0d;border-radius:10px;padding:4px;margin-bottom:18px}.switch button{background:none;border:0;color:#aaa;padding:11px;border-radius:8px}.switch button.active{background:var(--green);color:#000;font-weight:800}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.field input,.field textarea{width:100%;background:#101010;color:#fff;border:1px solid #3b3b3b;border-radius:8px;padding:13px;outline:0}.field input:focus,.field textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px #1ed76018}.primary{width:100%;background:var(--green);color:#000;border:0;padding:14px;border-radius:999px;font-weight:800;box-shadow:0 0 24px #1ed76035}.primary:hover{filter:brightness(1.08)}.ghost{background:#292929;color:#fff;border:0;padding:9px 13px;border-radius:999px}.danger{background:#4a1515;color:#ff9999}.footer{text-align:center;color:#666;font-size:11px;margin-top:18px}
-header{position:sticky;top:0;z-index:5;background:#101010ed;border-bottom:1px solid #2b2b2b;backdrop-filter:blur(12px)}.head{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{font-weight:800;font-size:23px;letter-spacing:-1px}.identity{color:var(--muted);font-size:12px;margin-right:8px}main{padding:26px 0 40px}.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:20px}.hero h1{margin:0;font-size:28px}.muted{color:var(--muted);font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.stat{padding:18px}.stat b{display:block;font-size:25px;margin-top:6px}.price{font-size:38px;font-weight:800;margin:10px 0}.pix{display:flex;align-items:center;gap:10px;background:#0d0d0d;border:1px dashed #444;padding:12px;border-radius:8px;margin-top:14px}.pix code{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.upload{border:2px dashed #444;border-radius:10px;padding:23px;text-align:center;margin-top:15px}.upload input{display:none}.upload label{display:inline-block;background:#292929;padding:10px 16px;border-radius:999px}.preview{display:block;max-width:100%;max-height:280px;margin:14px auto 0;border-radius:8px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.tabs button{background:#252525;color:#bbb;border:0;padding:10px 14px;border-radius:999px}.tabs button.active{background:var(--green);color:#000;font-weight:800}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;gap:6px;flex-wrap:wrap}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:12px 8px;border-bottom:1px solid #2b2b2b;white-space:nowrap}th{color:#888}.status{display:inline-block;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800}.Pendente{background:#493605;color:#ffd36a}.Aprovado{background:#073b23;color:#61ffad}.Recusado{background:#4b1111;color:#ff7777}.empty{text-align:center;color:#777;padding:30px}.toast{position:fixed;right:18px;bottom:18px;z-index:30;background:#222;padding:14px 18px;border-radius:9px;border-left:4px solid var(--green);box-shadow:0 8px 30px #000}.modal{position:fixed;inset:0;background:#000d;z-index:20;display:grid;place-items:center;padding:20px}.modalbox{width:min(900px,100%);max-height:90vh;overflow:auto}.modal img,.modal iframe{width:100%;max-height:70vh;border:0;border-radius:8px}
-@media(max-width:760px){.grid,.two{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.hero{align-items:flex-start;flex-direction:column}.identity{display:none}.brand{font-size:20px}}
+:root{
+    --bg:#121212;
+    --surface:#181818;
+    --surface2:#282828;
+    --surface3:#303030;
+    --blue:#00d2ff;
+    --blue2:#0072ff;
+    --white:#fff;
+    --gray:#b3b3b3;
+    --green:#00ff88;
+    --yellow:#ffaa00;
+    --red:#ff4444;
+    --border:rgba(255,255,255,.08);
+    --radius:12px;
+    --glow:0 0 10px rgba(0,210,255,.45),0 0 25px rgba(0,114,255,.18);
+    --shadow:0 15px 45px rgba(0,0,0,.4);
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at 10% 0%,rgba(0,210,255,.08),transparent 30%),
+        radial-gradient(circle at 90% 100%,rgba(0,114,255,.08),transparent 35%),
+        var(--bg);
+    color:var(--white);
+    font-family:Inter,Roboto,Arial,Helvetica,sans-serif;
+}
+
+button,
+input{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+#loginScreen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.login-wrapper{
+    width:100%;
+    max-width:430px;
+}
+
+.logo-area{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.logo{
+    width:70px;
+    height:70px;
+    margin:0 auto 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:20px;
+    background:linear-gradient(135deg,var(--blue),var(--blue2));
+    box-shadow:var(--glow);
+    font-size:30px;
+    font-weight:900;
+}
+
+.logo-area h1{
+    font-size:30px;
+    letter-spacing:-1px;
+}
+
+.logo-area h1 span{
+    color:var(--blue);
+}
+
+.logo-area p{
+    margin-top:7px;
+    color:var(--gray);
+    font-size:13px;
+}
+
+.login-card{
+    background:rgba(24,24,24,.97);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:27px;
+    box-shadow:var(--shadow);
+}
+
+.login-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:4px;
+    padding:4px;
+    background:var(--surface2);
+    border-radius:9px;
+    margin-bottom:25px;
+}
+
+.login-tab{
+    border:0;
+    padding:11px;
+    background:transparent;
+    color:var(--gray);
+    border-radius:7px;
+    transition:.2s;
+}
+
+.login-tab.active{
+    color:#fff;
+    background:linear-gradient(135deg,var(--blue2),var(--blue));
+    box-shadow:0 0 15px rgba(0,210,255,.25);
+}
+
+.field{
+    margin-bottom:17px;
+}
+
+.field label{
+    display:block;
+    margin-bottom:8px;
+    font-size:13px;
+    font-weight:600;
+    color:#ddd;
+}
+
+.input{
+    width:100%;
+    padding:13px 14px;
+    color:#fff;
+    background:#101010;
+    border:1px solid #383838;
+    border-radius:9px;
+    outline:none;
+    transition:.2s;
+}
+
+.input:focus{
+    border-color:var(--blue);
+    box-shadow:
+        0 0 0 3px rgba(0,210,255,.08),
+        0 0 12px rgba(0,210,255,.1);
+}
+
+.primary-button{
+    width:100%;
+    padding:13px 16px;
+    border:0;
+    border-radius:9px;
+    color:#fff;
+    font-weight:700;
+    background:linear-gradient(135deg,var(--blue2),var(--blue));
+    box-shadow:0 0 15px rgba(0,210,255,.2);
+    transition:.2s;
+}
+
+.primary-button:hover{
+    transform:translateY(-1px);
+    box-shadow:var(--glow);
+}
+
+.primary-button:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+}
+
+.login-info{
+    margin-top:18px;
+    padding:12px;
+    border-radius:8px;
+    background:rgba(0,210,255,.04);
+    border:1px solid rgba(0,210,255,.1);
+    color:var(--gray);
+    font-size:12px;
+    line-height:1.6;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.topbar{
+    height:70px;
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+    background:rgba(18,18,18,.94);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(14px);
+}
+
+.brand-small{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:17px;
+    font-weight:800;
+}
+
+.brand-small span{
+    color:var(--blue);
+}
+
+.mini-logo{
+    width:36px;
+    height:36px;
+    display:grid;
+    place-items:center;
+    border-radius:9px;
+    background:linear-gradient(135deg,var(--blue),var(--blue2));
+    box-shadow:var(--glow);
+    font-weight:900;
+}
+
+.user-area{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.user-name{
+    display:none;
+    color:#ddd;
+    font-size:13px;
+}
+
+.logout{
+    padding:8px 13px;
+    background:transparent;
+    color:var(--gray);
+    border:1px solid #333;
+    border-radius:8px;
+    transition:.2s;
+}
+
+.logout:hover{
+    color:#fff;
+    border-color:var(--blue);
+}
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.main{
+    width:100%;
+    max-width:1250px;
+    margin:auto;
+    padding:28px 18px 55px;
+}
+
+.page-title{
+    margin-bottom:24px;
+}
+
+.page-title h2{
+    font-size:26px;
+}
+
+.page-title p{
+    margin-top:6px;
+    color:var(--gray);
+    font-size:14px;
+}
+
+.grid{
+    display:grid;
+    gap:18px;
+}
+
+.card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:var(--shadow);
+}
+
+.card-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:18px;
+}
+
+.card-title h3{
+    font-size:16px;
+}
+
+.card-title span{
+    color:var(--gray);
+    font-size:11px;
+}
+
+/* =====================================================
+   COBRANÇA
+===================================================== */
+
+.client-grid{
+    grid-template-columns:1fr;
+}
+
+.bill-card{
+    position:relative;
+    overflow:hidden;
+}
+
+.bill-card::after{
+    content:"";
+    position:absolute;
+    width:190px;
+    height:190px;
+    right:-90px;
+    top:-90px;
+    border-radius:50%;
+    background:rgba(0,210,255,.08);
+}
+
+.plan-name{
+    color:var(--gray);
+    font-size:14px;
+    margin-bottom:6px;
+}
+
+.price{
+    font-size:36px;
+    font-weight:800;
+    letter-spacing:-1px;
+}
+
+.price small{
+    color:var(--gray);
+    font-size:12px;
+    font-weight:normal;
+}
+
+.pix-box{
+    margin-top:21px;
+    padding:14px;
+    background:var(--surface2);
+    border-radius:9px;
+}
+
+.pix-label{
+    color:var(--gray);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+}
+
+.pix-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:7px;
+}
+
+.pix-key{
+    flex:1;
+    min-width:0;
+    color:var(--blue);
+    font-size:13px;
+    word-break:break-all;
+}
+
+.copy-button{
+    flex-shrink:0;
+    padding:8px 11px;
+    border:0;
+    border-radius:7px;
+    color:#00151b;
+    background:var(--blue);
+    font-size:11px;
+    font-weight:800;
+}
+
+/* =====================================================
+   UPLOAD
+===================================================== */
+
+.upload-area{
+    padding:25px 15px;
+    text-align:center;
+    background:#111;
+    border:1px dashed #555;
+    border-radius:10px;
+    transition:.2s;
+}
+
+.upload-area.dragover{
+    border-color:var(--blue);
+    box-shadow:var(--glow);
+}
+
+.upload-icon{
+    font-size:30px;
+    margin-bottom:8px;
+}
+
+.upload-area p{
+    color:var(--gray);
+    font-size:13px;
+    margin-bottom:14px;
+}
+
+.file-label{
+    display:inline-block;
+    padding:10px 15px;
+    border:1px solid #444;
+    border-radius:8px;
+    background:var(--surface2);
+    color:#fff;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.file-label:hover{
+    color:var(--blue);
+    border-color:var(--blue);
+}
+
+#fileInput{
+    display:none;
+}
+
+.file-info{
+    margin-top:10px;
+    color:var(--gray);
+    font-size:12px;
+}
+
+.preview{
+    display:none;
+    margin-top:15px;
+    overflow:hidden;
+    border:1px solid #333;
+    border-radius:9px;
+    background:#080808;
+}
+
+.preview img{
+    display:block;
+    width:100%;
+    max-height:300px;
+    object-fit:contain;
+}
+
+.preview iframe{
+    display:block;
+    width:100%;
+    height:300px;
+    border:0;
+}
+
+.send-button{
+    margin-top:15px;
+}
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.status{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 9px;
+    border-radius:50px;
+    font-size:10px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+.status::before{
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:currentColor;
+    box-shadow:0 0 7px currentColor;
+}
+
+.status-pendente{
+    color:var(--yellow);
+    background:rgba(255,170,0,.08);
+}
+
+.status-aprovado{
+    color:var(--green);
+    background:rgba(0,255,136,.08);
+}
+
+.status-recusado{
+    color:var(--red);
+    background:rgba(255,68,68,.08);
+}
+
+/* =====================================================
+   HISTÓRICO
+===================================================== */
+
+.history-list{
+    display:grid;
+    gap:10px;
+}
+
+.history-item{
+    padding:13px;
+    background:var(--surface2);
+    border-radius:9px;
+    display:grid;
+    gap:7px;
+}
+
+.history-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.history-date{
+    color:var(--gray);
+    font-size:11px;
+}
+
+.empty{
+    padding:28px 10px;
+    text-align:center;
+    color:var(--gray);
+    font-size:13px;
+}
+
+/* =====================================================
+   ADMIN STATS
+===================================================== */
+
+.stats{
+    grid-template-columns:repeat(2,1fr);
+    margin-bottom:18px;
+}
+
+.stat{
+    padding:17px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+}
+
+.stat-label{
+    color:var(--gray);
+    font-size:11px;
+}
+
+.stat-value{
+    margin-top:6px;
+    font-size:23px;
+    font-weight:800;
+}
+
+.stat.pending .stat-value{
+    color:var(--yellow);
+}
+
+.stat.approved .stat-value{
+    color:var(--green);
+}
+
+.stat.money .stat-value{
+    color:var(--blue);
+}
+
+/* =====================================================
+   ADMIN TABS
+===================================================== */
+
+.admin-tabs{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    margin-bottom:18px;
+    padding-bottom:3px;
+}
+
+.admin-tab{
+    flex-shrink:0;
+    padding:10px 15px;
+    color:var(--gray);
+    background:var(--surface);
+    border:1px solid #333;
+    border-radius:8px;
+}
+
+.admin-tab.active{
+    color:#fff;
+    background:rgba(0,210,255,.07);
+    border-color:var(--blue);
+    box-shadow:0 0 10px rgba(0,210,255,.1);
+}
+
+/* =====================================================
+   FORM ADMIN
+===================================================== */
+
+.form-grid{
+    display:grid;
+    gap:15px;
+}
+
+.save-button{
+    width:auto;
+}
+
+/* =====================================================
+   TABELA
+===================================================== */
+
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    min-width:900px;
+    border-collapse:collapse;
+}
+
+th{
+    padding:12px;
+    color:var(--gray);
+    text-align:left;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    border-bottom:1px solid #333;
+}
+
+td{
+    padding:13px 12px;
+    font-size:12px;
+    border-bottom:1px solid rgba(255,255,255,.05);
+    vertical-align:middle;
+}
+
+tr:hover td{
+    background:rgba(255,255,255,.015);
+}
+
+.action-group{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+}
+
+.success-button,
+.danger-button,
+.secondary-button{
+    padding:8px 11px;
+    border-radius:7px;
+    background:var(--surface3);
+    border:1px solid var(--border);
+    font-size:11px;
+}
+
+.success-button{
+    color:var(--green);
+    border-color:rgba(0,255,136,.25);
+}
+
+.success-button:hover{
+    background:rgba(0,255,136,.1);
+}
+
+.danger-button{
+    color:var(--red);
+    border-color:rgba(255,68,68,.25);
+}
+
+.danger-button:hover{
+    background:rgba(255,68,68,.1);
+}
+
+.secondary-button{
+    color:var(--blue);
+}
+
+.secondary-button:hover{
+    border-color:var(--blue);
+}
+
+.file-button{
+    border:0;
+    background:transparent;
+    color:var(--blue);
+    text-decoration:underline;
+    font-size:11px;
+}
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    background:rgba(0,0,0,.84);
+    backdrop-filter:blur(6px);
+}
+
+.modal-backdrop.open{
+    display:flex;
+}
+
+.modal{
+    width:100%;
+    max-width:900px;
+    max-height:92vh;
+    overflow:hidden;
+    background:var(--surface);
+    border:1px solid #333;
+    border-radius:13px;
+    box-shadow:0 20px 80px rgba(0,0,0,.65),var(--glow);
+}
+
+.modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 17px;
+    border-bottom:1px solid #333;
+}
+
+.modal-header h3{
+    font-size:14px;
+}
+
+.close-modal{
+    border:0;
+    background:transparent;
+    color:var(--gray);
+    font-size:25px;
+}
+
+.close-modal:hover{
+    color:#fff;
+}
+
+.modal-body{
+    max-height:calc(92vh - 60px);
+    overflow:auto;
+    padding:15px;
+    background:#080808;
+}
+
+.modal-body img{
+    display:block;
+    width:100%;
+    max-height:75vh;
+    object-fit:contain;
+    margin:auto;
+}
+
+.modal-body iframe{
+    width:100%;
+    height:75vh;
+    border:0;
+    background:#fff;
+}
+
+.modal-info{
+    padding:15px;
+    text-align:center;
+    color:var(--gray);
+    font-size:12px;
+}
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+#toastContainer{
+    position:fixed;
+    right:15px;
+    bottom:15px;
+    z-index:200;
+    width:min(380px,calc(100% - 30px));
+    display:grid;
+    gap:9px;
+}
+
+.toast{
+    padding:13px 15px;
+    color:#fff;
+    background:#222;
+    border:1px solid #3b3b3b;
+    border-left:4px solid var(--blue);
+    border-radius:9px;
+    box-shadow:var(--shadow);
+    font-size:12px;
+    animation:toastIn .25s ease;
+}
+
+.toast.success{
+    border-left-color:var(--green);
+}
+
+.toast.error{
+    border-left-color:var(--red);
+}
+
+.toast.warning{
+    border-left-color:var(--yellow);
+}
+
+@keyframes toastIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media(min-width:700px){
+
+    .user-name{
+        display:block;
+    }
+
+    .client-grid{
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    }
+
+    .history-card{
+        grid-column:1/-1;
+    }
+
+    .stats{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .form-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .form-grid .full{
+        grid-column:1/-1;
+    }
+}
+
+@media(min-width:1000px){
+
+    .client-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .bill-card,
+    .upload-card{
+        min-height:300px;
+    }
+}
 </style>
 </head>
+
 <body>
 
-<div id="loginScreen" class="login">
-  <div class="loginbox card pad">
-    <div class="logo">SPOTFY <span>PAY</span></div>
-    <div class="sub">Gestão inteligente de pagamentos</div>
-    <div class="access">🔐 Acesso único — o sistema identifica automaticamente se sua conta é <b>Cliente</b> ou <b>Administrador</b>.</div>
-    <div class="field"><label>E-mail</label><input id="email" type="email" autocomplete="username" placeholder="seu@email.com"></div>
-    <div class="field"><label>Senha</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
-    <button class="primary" onclick="login()">ENTRAR</button>
-    <div id="loginMsg" class="muted" style="text-align:center;margin-top:12px"></div>
-    <div class="footer">by João Xavier 6606</div>
-  </div>
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
+<section id="loginScreen">
+
+<div class="login-wrapper">
+
+    <div class="logo-area">
+
+        <div class="logo">
+            SP
+        </div>
+
+        <h1>
+            Spotify<span>Pay</span>
+        </h1>
+
+        <p>
+            Cobranças • PIX • Validação de Pagamentos
+        </p>
+
+    </div>
+
+
+    <div class="login-card">
+
+        <div class="login-tabs">
+
+            <button
+                class="login-tab active"
+                data-role="client"
+                type="button"
+            >
+                Área do Cliente
+            </button>
+
+            <button
+                class="login-tab"
+                data-role="admin"
+                type="button"
+            >
+                Acesso Admin
+            </button>
+
+        </div>
+
+
+        <form id="loginForm">
+
+            <div class="field">
+
+                <label id="nameLabel" for="loginName">
+                    Primeiro Nome
+                </label>
+
+                <input
+                    id="loginName"
+                    class="input"
+                    type="text"
+                    placeholder="Digite seu primeiro nome"
+                    autocomplete="given-name"
+                    maxlength="40"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="loginPhone">
+                    Telefone
+                </label>
+
+                <input
+                    id="loginPhone"
+                    class="input"
+                    type="tel"
+                    placeholder="(11) 99999-9999"
+                    autocomplete="tel"
+                    inputmode="numeric"
+                    maxlength="15"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                class="primary-button"
+                type="submit"
+            >
+                Entrar
+            </button>
+
+        </form>
+
+
+        <div
+            class="login-info"
+            id="loginInfo"
+        >
+            <strong>Área do Cliente</strong><br>
+            Informe seu primeiro nome e telefone
+            para acessar sua área de pagamentos.
+        </div>
+
+    </div>
+
 </div>
 
-<div id="app" class="hidden">
-<header><div class="wrap head"><div class="brand">SPOTFY <span>PAY</span></div><div><span id="identity" class="identity"></span><button class="ghost" onclick="logout()">Sair</button></div></div></header>
-<main class="wrap">
-
-<section id="clientPanel" class="hidden">
-  <div class="hero"><div><h1>Olá, <span id="clientName"></span> 👋</h1><div class="muted">Acompanhe seu plano e seus comprovantes.</div></div></div>
-  <div class="grid">
-    <div class="card pad">
-      <div class="muted">PLANO ATIVO</div><h2 id="planName">—</h2><div id="planPrice" class="price">R$ 0,00</div>
-      <div class="muted">Pagamento via PIX</div>
-      <div class="pix"><code id="pixKey">Não configurada</code><button class="ghost" onclick="copyPix()">Copiar</button></div>
-    </div>
-    <div class="card pad">
-      <h2>Enviar comprovante</h2><div class="muted">PNG, JPG ou PDF • máximo 8 MB</div>
-      <div class="upload"><input id="proof" type="file" accept=".png,.jpg,.jpeg,.pdf" onchange="previewFile()"><label for="proof">📎 Selecionar comprovante</label><div id="fileName" class="muted" style="margin-top:10px"></div><div id="preview"></div></div>
-      <button class="primary" style="margin-top:12px" onclick="sendProof()">ENVIAR COMPROVANTE</button>
-    </div>
-  </div>
-  <div class="card pad" style="margin-top:16px"><h2>Meu histórico</h2><div id="clientHistory"></div></div>
 </section>
 
-<section id="adminPanel" class="hidden">
-  <div class="hero"><div><h1>Painel Administrativo</h1><div class="muted">Controle do SPOTFY PAY</div></div></div>
-  <div class="stats">
-    <div class="card stat"><div class="muted">PENDENTES</div><b id="sPending">0</b></div>
-    <div class="card stat"><div class="muted">APROVADOS</div><b id="sApproved">0</b></div>
-    <div class="card stat"><div class="muted">RECEITA</div><b id="sRevenue">R$ 0,00</b></div>
-    <div class="card stat"><div class="muted">CLIENTES</div><b id="sClients">0</b></div>
-  </div>
-  <div class="tabs">
-    <button class="active" onclick="adminTab('payments',this)">🧾 Comprovantes</button>
-    <button onclick="adminTab('clients',this)">👥 Clientes</button>
-    <button onclick="adminTab('settings',this)">⚙️ Configurações</button>
-  </div>
-  <div id="adminPayments" class="card pad"></div>
-  <div id="adminClients" class="card pad hidden"></div>
-  <div id="adminSettings" class="card pad hidden"></div>
-</section>
+
+<!-- =====================================================
+     CLIENTE
+===================================================== -->
+
+<section id="clientScreen" class="hidden">
+
+<header class="topbar">
+
+    <div class="brand-small">
+
+        <div class="mini-logo">
+            SP
+        </div>
+
+        Spotify<span>Pay</span>
+
+    </div>
+
+
+    <div class="user-area">
+
+        <span
+            id="clientUserName"
+            class="user-name"
+        ></span>
+
+        <button
+            class="logout"
+            onclick="logout()"
+            type="button"
+        >
+            Sair
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="main">
+
+    <div class="page-title">
+
+        <h2>
+            Olá,
+            <span id="clientGreeting"></span>
+            👋
+        </h2>
+
+        <p>
+            Consulte sua cobrança e envie o comprovante
+            para validação.
+        </p>
+
+    </div>
+
+
+    <div class="grid client-grid">
+
+        <div class="card bill-card">
+
+            <div class="card-title">
+
+                <h3>
+                    💳 Cobrança Ativa
+                </h3>
+
+                <span>
+                    Atual
+                </span>
+
+            </div>
+
+            <div
+                id="clientPlanName"
+                class="plan-name"
+            ></div>
+
+            <div class="price">
+
+                <span id="clientPrice">
+                    R$ 0,00
+                </span>
+
+                <small>
+                    / período
+                </small>
+
+            </div>
+
+            <div class="pix-box">
+
+                <div class="pix-label">
+                    Chave PIX
+                </div>
+
+                <div class="pix-row">
+
+                    <div
+                        id="clientPix"
+                        class="pix-key"
+                    ></div>
+
+                    <button
+                        id="copyPixButton"
+                        class="copy-button"
+                        type="button"
+                    >
+                        Copiar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card upload-card">
+
+            <div class="card-title">
+
+                <h3>
+                    📤 Enviar Comprovante
+                </h3>
+
+                <span>
+                    PNG • JPG • PDF
+                </span>
+
+            </div>
+
+
+            <div
+                id="uploadArea"
+                class="upload-area"
+            >
+
+                <div class="upload-icon">
+                    📎
+                </div>
+
+                <p>
+                    Selecione o comprovante do pagamento
+                </p>
+
+                <label
+                    class="file-label"
+                    for="fileInput"
+                >
+                    Selecionar arquivo
+                </label>
+
+                <input
+                    id="fileInput"
+                    type="file"
+                    accept="image/png,image/jpeg,application/pdf"
+                >
+
+                <div
+                    id="fileInfo"
+                    class="file-info"
+                ></div>
+
+            </div>
+
+
+            <div
+                id="preview"
+                class="preview"
+            ></div>
+
+
+            <button
+                id="sendProofButton"
+                class="primary-button send-button"
+                type="button"
+                disabled
+            >
+                Enviar Comprovante para Validação
+            </button>
+
+        </div>
+
+
+        <div class="card history-card">
+
+            <div class="card-title">
+
+                <h3>
+                    📋 Meu Histórico
+                </h3>
+
+                <span>
+                    Seus pagamentos
+                </span>
+
+            </div>
+
+            <div
+                id="clientHistory"
+                class="history-list"
+            ></div>
+
+        </div>
+
+    </div>
 
 </main>
-<div class="footer wrap" style="padding-bottom:25px">SPOTFY PAY • by João Xavier 6606</div>
+
+</section>
+
+
+<!-- =====================================================
+     ADMIN
+===================================================== -->
+
+<section id="adminScreen" class="hidden">
+
+<header class="topbar">
+
+    <div class="brand-small">
+
+        <div class="mini-logo">
+            SP
+        </div>
+
+        Spotify<span>Pay</span> Admin
+
+    </div>
+
+
+    <div class="user-area">
+
+        <span
+            id="adminUserName"
+            class="user-name"
+        >
+            João • Administrador
+        </span>
+
+        <button
+            class="logout"
+            onclick="logout()"
+            type="button"
+        >
+            Sair
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="main">
+
+    <div class="page-title">
+
+        <h2>
+            Painel Administrativo
+        </h2>
+
+        <p>
+            Gerencie cobranças e valide pagamentos recebidos.
+        </p>
+
+    </div>
+
+
+    <div class="grid stats">
+
+        <div class="stat pending">
+
+            <div class="stat-label">
+                Pendentes
+            </div>
+
+            <div
+                id="statPending"
+                class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat approved">
+
+            <div class="stat-label">
+                Aprovados
+            </div>
+
+            <div
+                id="statApproved"
+                class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat money">
+
+            <div class="stat-label">
+                Faturamento Aprovado
+            </div>
+
+            <div
+                id="statRevenue"
+                class="stat-value"
+            >
+                R$ 0,00
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="admin-tabs">
+
+        <button
+            class="admin-tab active"
+            data-admin-tab="settings"
+            type="button"
+        >
+            ⚙️ Preços & Serviços
+        </button>
+
+        <button
+            class="admin-tab"
+            data-admin-tab="payments"
+            type="button"
+        >
+            ✓ Validação de Comprovantes
+        </button>
+
+    </div>
+
+
+    <div
+        id="settingsTab"
+        class="card"
+    >
+
+        <div class="card-title">
+
+            <h3>
+                ⚙️ Gestão de Preços & Serviços
+            </h3>
+
+            <span>
+                SpotifyPay
+            </span>
+
+        </div>
+
+
+        <form id="settingsForm">
+
+            <div class="form-grid">
+
+                <div class="field">
+
+                    <label for="planName">
+                        Nome do Plano / Serviço
+                    </label>
+
+                    <input
+                        id="planName"
+                        class="input"
+                        type="text"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="planPrice">
+                        Valor
+                    </label>
+
+                    <input
+                        id="planPrice"
+                        class="input"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field full">
+
+                    <label for="pixKey">
+                        Chave PIX
+                    </label>
+
+                    <input
+                        id="pixKey"
+                        class="input"
+                        type="text"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="full">
+
+                    <button
+                        class="primary-button save-button"
+                        type="submit"
+                    >
+                        Salvar Alterações
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <div
+        id="paymentsTab"
+        class="card hidden"
+    >
+
+        <div class="card-title">
+
+            <h3>
+                ✓ Validação de Comprovantes
+            </h3>
+
+            <span>
+                Todos os clientes
+            </span>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Cliente</th>
+                        <th>Telefone</th>
+                        <th>Data/Hora</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Arquivo</th>
+                        <th>Ações</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="paymentsTableBody"
+                ></tbody>
+
+            </table>
+
+        </div>
+
+
+        <div
+            id="adminEmpty"
+            class="empty hidden"
+        >
+            Nenhum comprovante foi enviado ainda.
+        </div>
+
+    </div>
+
+</main>
+
+</section>
+
+
+<!-- =====================================================
+     MODAL
+===================================================== -->
+
+<div
+    id="proofModal"
+    class="modal-backdrop"
+>
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h3 id="modalTitle">
+                Comprovante
+            </h3>
+
+            <button
+                class="close-modal"
+                onclick="closeProofModal()"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div
+            id="modalBody"
+            class="modal-body"
+        ></div>
+
+    </div>
+
 </div>
 
-<div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()">
-  <div class="modalbox card pad"><div class="row"><h2>Comprovante</h2><button class="ghost" onclick="closeModal()">Fechar</button></div><div id="modalContent"></div></div>
-</div>
+
+<div id="toastContainer"></div>
+
 
 <script>
-const SUPABASE_URL='https://zfubayucdwlqzdojqufx.supabase.co';
-const SUPABASE_KEY='sb_publishable_JsY4iN_lv2IIuSWbpYVuew_T2KG5eQu';
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let me=null, settings=null;
+"use strict";
 
-const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-function toast(msg,bad=false){const x=document.createElement('div');x.className='toast';x.style.borderLeftColor=bad?'#ff4444':'#1ed760';x.textContent=msg;document.body.appendChild(x);setTimeout(()=>x.remove(),3500)}
-async function login(){
-  loginMsg.textContent='Entrando...';
-  const {data,error}=await supabase.auth.signInWithPassword({email:email.value.trim(),password:password.value});
-  if(error){loginMsg.textContent='E-mail ou senha inválidos.';return}
-  await startApp(data.user);
+/* =====================================================
+   CONFIGURAÇÃO DO SPOTIFYPAY
+===================================================== */
+
+const STORAGE = {
+    USERS:"spotifypay_users",
+    SETTINGS:"spotifypay_settings",
+    PAYMENTS:"spotifypay_payments"
+};
+
+const SESSION_KEY =
+    "spotifypay_session";
+
+
+/*
+ * Administradores autorizados.
+ *
+ * O acesso é feito exclusivamente por:
+ *
+ * Nome + Telefone
+ *
+ * Não existe senha.
+ */
+
+const ADMINS = [
+
+    {
+        name:"João",
+        phone:"11978178899",
+        role:"admin"
+    },
+
+    {
+        name:"David",
+        phone:"11944912523",
+        role:"admin"
+    }
+
+];
+
+
+/* =====================================================
+   ELEMENTOS
+===================================================== */
+
+const loginScreen =
+    document.getElementById("loginScreen");
+
+const clientScreen =
+    document.getElementById("clientScreen");
+
+const adminScreen =
+    document.getElementById("adminScreen");
+
+const loginForm =
+    document.getElementById("loginForm");
+
+const loginName =
+    document.getElementById("loginName");
+
+const loginPhone =
+    document.getElementById("loginPhone");
+
+const loginInfo =
+    document.getElementById("loginInfo");
+
+const nameLabel =
+    document.getElementById("nameLabel");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const uploadArea =
+    document.getElementById("uploadArea");
+
+const preview =
+    document.getElementById("preview");
+
+const fileInfo =
+    document.getElementById("fileInfo");
+
+const sendProofButton =
+    document.getElementById("sendProofButton");
+
+let selectedFileData = null;
+
+let selectedRole = "client";
+
+
+/* =====================================================
+   UTILITÁRIOS
+===================================================== */
+
+function normalizePhone(phone){
+
+    return String(phone || "")
+        .replace(/\D/g,"");
+
 }
-async function startApp(user){
-  const {data:p,error}=await supabase.from('profiles').select('*').eq('id',user.id).single();
-  if(error||!p||!p.active){await supabase.auth.signOut();loginMsg.textContent='Usuário sem acesso.';return}
-  me=p;
-loginScreen.classList.add('hidden');app.classList.remove('hidden');identity.textContent=p.name;
-  if(p.role==='admin'){adminPanel.classList.remove('hidden');await loadAdmin()}else{clientPanel.classList.remove('hidden');clientName.textContent=p.name;await loadClient()}
+
+
+function normalizeName(name){
+
+    return String(name || "")
+        .trim()
+        .replace(/\s+/g," ");
+
 }
-async function logout(){await supabase.auth.signOut();location.reload()}
-async function getSettings(){const {data,error}=await supabase.from('settings').select('*').eq('id',1).single();if(error)throw error;settings=data;return data}
-async function loadClient(){
- try{
-  const s=await getSettings();planName.textContent=s.plan_name;planPrice.textContent=money(s.price);pixKey.textContent=s.pix_key||'Não configurada';
-  const {data,error}=await supabase.from('payments').select('*').eq('client_id',me.id).order('submitted_at',{ascending:false});if(error)throw error;
-  clientHistory.innerHTML=data?.length?`<div class="scroll"><table><thead><tr><th>Data</th><th>Valor</th><th>Status</th><th>Comprovante</th></tr></thead><tbody>${data.map(x=>`<tr><td>${new Date(x.submitted_at).toLocaleString('pt-BR')}</td><td>${money(x.amount)}</td><td><span class="status ${x.status}">${x.status}</span></td><td>${x.proof_path?`<button class="ghost" onclick="viewProof('${x.proof_path}','${x.proof_mime||''}')">Ver</button>`:'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nenhum pagamento enviado.</div>';
- }catch(e){toast(e.message,true)}
+
+
+function firstName(name){
+
+    return normalizeName(name)
+        .split(" ")[0];
+
 }
-async function copyPix(){try{await navigator.clipboard.writeText(pixKey.textContent);toast('PIX copiado')}catch{toast('Não foi possível copiar',true)}}
-function previewFile(){
- const f=proof.files[0];if(!f)return;if(f.size>8*1024*1024){toast('Arquivo maior que 8 MB',true);proof.value='';return}
- fileName.textContent=f.name;preview.innerHTML='';
- if(f.type.startsWith('image/')){const r=new FileReader();r.onload=()=>preview.innerHTML=`<img class="preview" src="${r.result}">`;r.readAsDataURL(f)}
- else preview.innerHTML='<div class="muted" style="margin-top:10px">PDF selecionado ✓</div>';
+
+
+function formatCurrency(value){
+
+    return new Intl.NumberFormat(
+        "pt-BR",
+        {
+            style:"currency",
+            currency:"BRL"
+        }
+    ).format(Number(value) || 0);
+
 }
-async function sendProof(){
- const f=proof.files[0];if(!f){toast('Selecione um comprovante',true);return}
- try{
-  if(!settings)await getSettings();
-  const id=crypto.randomUUID(),ext=(f.name.split('.').pop()||'bin').toLowerCase(),path=`${me.id}/${id}.${ext}`;
-  const up=await supabase.storage.from('comprovantes').upload(path,f,{contentType:f.type,upsert:false});if(up.error)throw up.error;
-  const ins=await supabase.from('payments').insert({id,client_id:me.id,amount:Number(settings.price),status:'Pendente',proof_path:path,proof_name:f.name,proof_mime:f.type});
-  if(ins.error){await supabase.storage.from('comprovantes').remove([path]);throw ins.error}
-  proof.value='';fileName.textContent='';preview.innerHTML='';toast('Comprovante enviado com sucesso');await loadClient();
- }catch(e){toast(e.message,true)}
+
+
+function formatDate(date){
+
+    return new Intl.DateTimeFormat(
+        "pt-BR",
+        {
+            dateStyle:"short",
+            timeStyle:"medium"
+        }
+    ).format(new Date(date));
+
 }
-async function viewProof(path,mime){
- try{const {data,error}=await supabase.storage.from('comprovantes').createSignedUrl(path,600);if(error)throw error;modalContent.innerHTML=mime==='application/pdf'?`<iframe src="${data.signedUrl}" height="600"></iframe>`:`<img src="${data.signedUrl}">`;modal.classList.remove('hidden')}
- catch(e){toast(e.message,true)}
+
+
+function formatPhone(phone){
+
+    const number =
+        normalizePhone(phone);
+
+    if(number.length === 11){
+
+        return number.replace(
+            /^(\d{2})(\d{5})(\d{4})$/,
+            "($1) $2-$3"
+        );
+
+    }
+
+    return number;
+
 }
-function closeModal(){modal.classList.add('hidden');modalContent.innerHTML=''}
-async function loadAdmin(){
- try{
-  const [pr,cl,st]=await Promise.all([supabase.from('payments').select('*').order('submitted_at',{ascending:false}),supabase.from('profiles').select('*').eq('role','client').order('created_at',{ascending:false}),getSettings()]);
-  if(pr.error)throw pr.error;if(cl.error)throw cl.error;
-  const payments=pr.data||[],clients=cl.data||[];const names=Object.fromEntries(clients.map(c=>[c.id,c.name]));
-  sPending.textContent=payments.filter(x=>x.status==='Pendente').length;sApproved.textContent=payments.filter(x=>x.status==='Aprovado').length;sRevenue.textContent=money(payments.filter(x=>x.status==='Aprovado').reduce((a,x)=>a+Number(x.amount),0));sClients.textContent=clients.length;
-  adminPayments.innerHTML=payments.length?`<div class="scroll"><table><thead><tr><th>Cliente</th><th>Data</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody>${payments.map(x=>`<tr><td>${esc(names[x.client_id]||x.client_id)}</td><td>${new Date(x.submitted_at).toLocaleString('pt-BR')}</td><td>${money(x.amount)}</td><td><span class="status ${x.status}">${x.status}</span></td><td><div class="actions">${x.proof_path?`<button class="ghost" onclick="viewProof('${x.proof_path}','${x.proof_mime||''}')">Ver</button>`:''}${x.status==='Pendente'?`<button class="ghost" onclick="review('${x.id}','Aprovado')">✓ Aprovar</button><button class="ghost danger" onclick="review('${x.id}','Recusado')">✕ Recusar</button>`:''}</div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nenhum comprovante.</div>';
-  adminClients.innerHTML=`<div class="row"><div><h2>Clientes</h2><div class="muted">Contas individuais dos clientes.</div></div><button class="primary" style="width:auto" onclick="newClient()">+ Novo cliente</button></div><div class="scroll" style="margin-top:15px"><table><thead><tr><th>Nome</th><th>Usuário</th><th>Status</th><th>Cadastro</th></tr></thead><tbody>${clients.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.username||'—')}</td><td>${c.active?'Ativo':'Bloqueado'}</td><td>${new Date(c.created_at).toLocaleDateString('pt-BR')}</td></tr>`).join('')}</tbody></table></div>`;
-  adminSettings.innerHTML=`<h2>Configurações de cobrança</h2><div class="two"><div class="field"><label>Nome do plano</label><input id="setPlan" value="${esc(st.plan_name)}"></div><div class="field"><label>Valor (R$)</label><input id="setPrice" type="number" step="0.01" value="${st.price}"></div></div><div class="field"><label>Chave PIX</label><input id="setPix" value="${esc(st.pix_key)}"></div><button class="primary" style="width:auto" onclick="saveSettings()">Salvar configurações</button>`;
- }catch(e){toast(e.message,true)}
+
+
+function generateId(){
+
+    return (
+        Date.now().toString(36) +
+        Math.random()
+            .toString(36)
+            .substring(2,10)
+    );
+
 }
-function adminTab(t,b){[adminPayments,adminClients,adminSettings].forEach(x=>x.classList.add('hidden'));document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');({payments:adminPayments,clients:adminClients,settings:adminSettings})[t].classList.remove('hidden')}
-async function review(id,status){const {error}=await supabase.from('payments').update({status,reviewed_at:new Date().toISOString(),reviewed_by:me.id}).eq('id',id);if(error)toast(error.message,true);else{toast(status==='Aprovado'?'Pagamento aprovado':'Pagamento recusado');await loadAdmin()}}
-async function saveSettings(){const price=Number(setPrice.value);if(!setPlan.value.trim()||!Number.isFinite(price)||price<0){toast('Preencha os dados corretamente',true);return}const {error}=await supabase.from('settings').update({plan_name:setPlan.value.trim(),price,pix_key:setPix.value.trim(),updated_at:new Date().toISOString()}).eq('id',1);if(error)toast(error.message,true);else{toast('Configurações salvas');await loadAdmin()}}
-async function newClient(){
- const name=prompt('Nome completo do cliente:');if(!name)return;const email=prompt('E-mail de login:');if(!email)return;const password=prompt('Senha inicial (mínimo 6 caracteres):');if(!password)return;const username=prompt('Usuário (opcional):')||'';
- try{const {data,error}=await supabase.functions.invoke('create-client',{body:{name,email,password,username}});if(error)throw error;if(data?.error)throw new Error(data.error);toast('Cliente criado com sucesso');await loadAdmin()}catch(e){toast(e.message||'Erro ao criar cliente',true)}
+
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+
 }
-supabase.auth.getSession().then(({data})=>{if(data.session)startApp(data.session.user)});
-supabase.auth.onAuthStateChange(()=>{});
+
+
+function getJSON(key,fallback){
+
+    try{
+
+        const value =
+            localStorage.getItem(key);
+
+        return value
+            ? JSON.parse(value)
+            : fallback;
+
+    }catch(error){
+
+        console.error(
+            "Erro ao ler localStorage:",
+            error
+        );
+
+        return fallback;
+
+    }
+
+}
+
+
+function setJSON(key,value){
+
+    try{
+
+        localStorage.setItem(
+            key,
+            JSON.stringify(value)
+        );
+
+        return true;
+
+    }catch(error){
+
+        console.error(
+            "Erro ao salvar localStorage:",
+            error
+        );
+
+        if(
+            error.name === "QuotaExceededError" ||
+            error.code === 22
+        ){
+
+            showToast(
+                "Armazenamento cheio. O comprovante pode ser grande demais.",
+                "error"
+            );
+
+        }else{
+
+            showToast(
+                "Não foi possível salvar os dados.",
+                "error"
+            );
+
+        }
+
+        return false;
+
+    }
+
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+function showToast(
+    message,
+    type="info"
+){
+
+    const container =
+        document.getElementById(
+            "toastContainer"
+        );
+
+    const toast =
+        document.createElement("div");
+
+    toast.className =
+        `toast ${type}`;
+
+    toast.textContent =
+        message;
+
+    container.appendChild(
+        toast
+    );
+
+    setTimeout(()=>{
+
+        toast.style.opacity="0";
+        toast.style.transform=
+            "translateY(10px)";
+
+        setTimeout(
+            ()=>toast.remove(),
+            250
+        );
+
+    },3500);
+
+}
+
+
+/* =====================================================
+   INICIALIZAÇÃO
+===================================================== */
+
+function initializeStorage(){
+
+    if(
+        !localStorage.getItem(
+            STORAGE.USERS
+        )
+    ){
+
+        setJSON(
+            STORAGE.USERS,
+            []
+        );
+
+    }
+
+
+    if(
+        !localStorage.getItem(
+            STORAGE.SETTINGS
+        )
+    ){
+
+        setJSON(
+            STORAGE.SETTINGS,
+            {
+                planName:"Plano Mensal",
+                price:49.90,
+                pixKey:"financeiro@empresa.com"
+            }
+        );
+
+    }
+
+
+    if(
+        !localStorage.getItem(
+            STORAGE.PAYMENTS
+        )
+    ){
+
+        setJSON(
+            STORAGE.PAYMENTS,
+            []
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   MÁSCARA TELEFONE
+===================================================== */
+
+loginPhone.addEventListener(
+    "input",
+    ()=>{
+
+        let value =
+            normalizePhone(
+                loginPhone.value
+            );
+
+        value =
+            value.substring(0,11);
+
+        if(value.length <= 2){
+
+            loginPhone.value =
+                value;
+
+        }else if(value.length <= 7){
+
+            loginPhone.value =
+                `(${value.substring(0,2)}) ` +
+                `${value.substring(2)}`;
+
+        }else{
+
+            loginPhone.value =
+                `(${value.substring(0,2)}) ` +
+                `${value.substring(2,7)}-` +
+                `${value.substring(7)}`;
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   ALTERNÂNCIA CLIENTE / ADMIN
+===================================================== */
+
+document
+    .querySelectorAll(".login-tab")
+    .forEach(tab=>{
+
+        tab.addEventListener(
+            "click",
+            ()=>{
+
+                document
+                    .querySelectorAll(".login-tab")
+                    .forEach(item=>{
+                        item.classList.remove(
+                            "active"
+                        );
+                    });
+
+                tab.classList.add("active");
+
+                selectedRole =
+                    tab.dataset.role;
+
+
+                if(
+                    selectedRole === "admin"
+                ){
+
+                    nameLabel.textContent =
+                        "Nome do Administrador";
+
+                    loginName.placeholder =
+                        "Digite seu nome";
+
+                    loginPhone.placeholder =
+                        "(11) 99999-9999";
+
+                    loginInfo.innerHTML = `
+                        <strong>Acesso Administrativo</strong><br>
+                        Informe seu nome e telefone autorizado
+                        para acessar o painel administrativo.
+                    `;
+
+                }else{
+
+                    nameLabel.textContent =
+                        "Primeiro Nome";
+
+                    loginName.placeholder =
+                        "Digite seu primeiro nome";
+
+                    loginPhone.placeholder =
+                        "(11) 99999-9999";
+
+                    loginInfo.innerHTML = `
+                        <strong>Área do Cliente</strong><br>
+                        Informe seu primeiro nome e telefone
+                        para acessar sua área de pagamentos.
+                    `;
+
+                }
+
+                loginName.focus();
+
+            }
+        );
+
+    });
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+loginForm.addEventListener(
+    "submit",
+    event=>{
+
+        event.preventDefault();
+
+        try{
+
+            const name =
+                firstName(
+                    loginName.value
+                );
+
+            const phone =
+                normalizePhone(
+                    loginPhone.value
+                );
+
+
+            if(!name){
+
+                showToast(
+                    "Informe seu nome.",
+                    "warning"
+                );
+
+                return;
+
+            }
+
+
+            if(phone.length !== 11){
+
+                showToast(
+                    "Informe um telefone válido com DDD.",
+                    "warning"
+                );
+
+                return;
+
+            }
+
+
+            /* =========================================
+               LOGIN ADMIN
+            ========================================= */
+
+            if(
+                selectedRole === "admin"
+            ){
+
+                const admin =
+                    ADMINS.find(
+                        item =>
+                            normalizePhone(
+                                item.phone
+                            ) === phone &&
+                            item.name
+                                .toLowerCase() ===
+                                name.toLowerCase()
+                    );
+
+
+                if(!admin){
+
+                    showToast(
+                        "Nome ou telefone administrativo não autorizado.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                const session = {
+
+                    name:admin.name,
+
+                    phone:admin.phone,
+
+                    role:"admin"
+
+                };
+
+
+                sessionStorage.setItem(
+                    SESSION_KEY,
+                    JSON.stringify(session)
+                );
+
+
+                loginForm.reset();
+
+                showAdmin();
+
+                showToast(
+                    `Bem-vindo, ${admin.name}.`,
+                    "success"
+                );
+
+                return;
+
+            }
+
+
+            /* =========================================
+               TELEFONES ADMINISTRATIVOS
+               NÃO PODEM SER CLIENTES
+            ========================================= */
+
+            if(
+                ADMINS.some(
+                    admin =>
+                        normalizePhone(
+                            admin.phone
+                        ) === phone
+                )
+            ){
+
+                showToast(
+                    "Este telefone está reservado para acesso administrativo.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            /* =========================================
+               LOGIN CLIENTE
+            ========================================= */
+
+            let users =
+                getJSON(
+                    STORAGE.USERS,
+                    []
+                );
+
+
+            let user =
+                users.find(
+                    item =>
+                        normalizePhone(
+                            item.phone
+                        ) === phone
+                );
+
+
+            /*
+             * Primeiro acesso:
+             * cria o cliente automaticamente.
+             */
+
+            if(!user){
+
+                user = {
+
+                    id:
+                        generateId(),
+
+                    name:
+                        name,
+
+                    phone:
+                        phone,
+
+                    role:
+                        "client",
+
+                    createdAt:
+                        new Date()
+                            .toISOString()
+
+                };
+
+
+                users.push(user);
+
+                setJSON(
+                    STORAGE.USERS,
+                    users
+                );
+
+            }else{
+
+                user.name =
+                    name;
+
+                setJSON(
+                    STORAGE.USERS,
+                    users
+                );
+
+            }
+
+
+            const session = {
+
+                userId:
+                    user.id,
+
+                name:
+                    user.name,
+
+                phone:
+                    user.phone,
+
+                role:
+                    "client"
+
+            };
+
+
+            sessionStorage.setItem(
+                SESSION_KEY,
+                JSON.stringify(session)
+            );
+
+
+            loginForm.reset();
+
+            showClient();
+
+            showToast(
+                "Login realizado com sucesso.",
+                "success"
+            );
+
+        }catch(error){
+
+            console.error(error);
+
+            showToast(
+                "Não foi possível realizar o login.",
+                "error"
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   SESSÃO
+===================================================== */
+
+function getSession(){
+
+    try{
+
+        const value =
+            sessionStorage.getItem(
+                SESSION_KEY
+            );
+
+        return value
+            ? JSON.parse(value)
+            : null;
+
+    }catch{
+
+        return null;
+
+    }
+
+}
+
+
+function logout(){
+
+    sessionStorage.removeItem(
+        SESSION_KEY
+    );
+
+    selectedFileData =
+        null;
+
+    resetFile();
+
+    loginScreen.classList
+        .remove("hidden");
+
+    clientScreen.classList
+        .add("hidden");
+
+    adminScreen.classList
+        .add("hidden");
+
+    loginName.focus();
+
+    showToast(
+        "Sessão encerrada."
+    );
+
+}
+
+
+/* =====================================================
+   TELA CLIENTE
+===================================================== */
+
+function showClient(){
+
+    const session =
+        getSession();
+
+
+    if(
+        !session ||
+        session.role !== "client"
+    ){
+
+        logout();
+
+        return;
+
+    }
+
+
+    loginScreen.classList
+        .add("hidden");
+
+    adminScreen.classList
+        .add("hidden");
+
+    clientScreen.classList
+        .remove("hidden");
+
+
+    document.getElementById(
+        "clientGreeting"
+    ).textContent =
+        firstName(session.name);
+
+
+    document.getElementById(
+        "clientUserName"
+    ).textContent =
+        `${firstName(session.name)} • ${formatPhone(session.phone)}`;
+
+
+    loadClientData();
+
+}
+
+
+/* =====================================================
+   TELA ADMIN
+===================================================== */
+
+function showAdmin(){
+
+    const session =
+        getSession();
+
+
+    if(
+        !session ||
+        session.role !== "admin"
+    ){
+
+        logout();
+
+        return;
+
+    }
+
+
+    loginScreen.classList
+        .add("hidden");
+
+    clientScreen.classList
+        .add("hidden");
+
+    adminScreen.classList
+        .remove("hidden");
+
+
+    document.getElementById(
+        "adminUserName"
+    ).textContent =
+        `${session.name} • Administrador`;
+
+
+    loadAdminData();
+
+}
+
+
+/* =====================================================
+   DADOS CLIENTE
+===================================================== */
+
+function loadClientData(){
+
+    const settings =
+        getJSON(
+            STORAGE.SETTINGS,
+            {}
+        );
+
+
+    document.getElementById(
+        "clientPlanName"
+    ).textContent =
+        settings.planName ||
+        "Plano";
+
+
+    document.getElementById(
+        "clientPrice"
+    ).textContent =
+        formatCurrency(
+            settings.price
+        );
+
+
+    document.getElementById(
+        "clientPix"
+    ).textContent =
+        settings.pixKey ||
+        "Não cadastrada";
+
+
+    renderClientHistory();
+
+}
+
+
+/* =====================================================
+   COPIAR PIX
+===================================================== */
+
+document.getElementById(
+    "copyPixButton"
+).addEventListener(
+    "click",
+    async()=>{
+
+        const settings =
+            getJSON(
+                STORAGE.SETTINGS,
+                {}
+            );
+
+        const key =
+            settings.pixKey || "";
+
+
+        if(!key){
+
+            showToast(
+                "Nenhuma chave PIX cadastrada.",
+                "warning"
+            );
+
+            return;
+
+        }
+
+
+        try{
+
+            await navigator.clipboard
+                .writeText(key);
+
+            showToast(
+                "Chave PIX copiada.",
+                "success"
+            );
+
+        }catch{
+
+            const textarea =
+                document.createElement(
+                    "textarea"
+                );
+
+            textarea.value =
+                key;
+
+            textarea.style.position =
+                "fixed";
+
+            textarea.style.opacity =
+                "0";
+
+            document.body.appendChild(
+                textarea
+            );
+
+            textarea.select();
+
+            try{
+
+                document.execCommand(
+                    "copy"
+                );
+
+                showToast(
+                    "Chave PIX copiada.",
+                    "success"
+                );
+
+            }catch{
+
+                showToast(
+                    "Não foi possível copiar automaticamente.",
+                    "warning"
+                );
+
+            }
+
+            textarea.remove();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   FILE INPUT
+===================================================== */
+
+fileInput.addEventListener(
+    "change",
+    event=>{
+
+        const file =
+            event.target.files[0];
+
+        if(!file){
+
+            resetFile();
+
+            return;
+
+        }
+
+        processFile(file);
+
+    }
+);
+
+
+/* =====================================================
+   DRAG & DROP
+===================================================== */
+
+[
+    "dragenter",
+    "dragover"
+].forEach(
+    eventName=>{
+
+        uploadArea.addEventListener(
+            eventName,
+            event=>{
+
+                event.preventDefault();
+
+                uploadArea.classList
+                    .add("dragover");
+
+            }
+        );
+
+    }
+);
+
+
+[
+    "dragleave",
+    "drop"
+].forEach(
+    eventName=>{
+
+        uploadArea.addEventListener(
+            eventName,
+            event=>{
+
+                event.preventDefault();
+
+                uploadArea.classList
+                    .remove("dragover");
+
+            }
+        );
+
+    }
+);
+
+
+uploadArea.addEventListener(
+    "drop",
+    event=>{
+
+        const file =
+            event.dataTransfer
+                .files[0];
+
+        if(file){
+
+            processFile(file);
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   FILE READER / BASE64
+===================================================== */
+
+function processFile(file){
+
+    const allowedTypes = [
+
+        "image/png",
+
+        "image/jpeg",
+
+        "application/pdf"
+
+    ];
+
+
+    if(
+        !allowedTypes.includes(
+            file.type
+        )
+    ){
+
+        showToast(
+            "Formato inválido. Utilize PNG, JPG ou PDF.",
+            "error"
+        );
+
+        resetFile();
+
+        return;
+
+    }
+
+
+    const maxSize =
+        4 * 1024 * 1024;
+
+
+    if(
+        file.size > maxSize
+    ){
+
+        showToast(
+            "Arquivo muito grande. Limite: 4 MB.",
+            "error"
+        );
+
+        resetFile();
+
+        return;
+
+    }
+
+
+    /*
+     * FileReader converte o comprovante
+     * para Base64/Data URL.
+     */
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        event=>{
+
+            try{
+
+                const base64 =
+                    event.target.result;
+
+
+                selectedFileData = {
+
+                    name:
+                        file.name,
+
+                    type:
+                        file.type,
+
+                    size:
+                        file.size,
+
+                    data:
+                        base64
+
+                };
+
+
+                fileInfo.textContent =
+                    `${file.name} • ${formatFileSize(file.size)}`;
+
+
+                renderPreview(
+                    selectedFileData
+                );
+
+
+                sendProofButton.disabled =
+                    false;
+
+
+                showToast(
+                    "Comprovante carregado.",
+                    "success"
+                );
+
+            }catch(error){
+
+                console.error(error);
+
+                showToast(
+                    "Erro ao processar o arquivo.",
+                    "error"
+                );
+
+                resetFile();
+
+            }
+
+        };
+
+
+    reader.onerror =
+        ()=>{
+
+            showToast(
+                "Não foi possível ler o arquivo.",
+                "error"
+            );
+
+            resetFile();
+
+        };
+
+
+    reader.readAsDataURL(file);
+
+}
+
+
+/* =====================================================
+   PREVIEW
+===================================================== */
+
+function renderPreview(file){
+
+    preview.innerHTML = "";
+
+
+    if(
+        file.type === "image/png" ||
+        file.type === "image/jpeg"
+    ){
+
+        const image =
+            document.createElement("img");
+
+        image.src =
+            file.data;
+
+        image.alt =
+            "Preview do comprovante";
+
+        preview.appendChild(
+            image
+        );
+
+    }else if(
+        file.type === "application/pdf"
+    ){
+
+        const iframe =
+            document.createElement("iframe");
+
+        iframe.src =
+            file.data;
+
+        iframe.title =
+            "Preview do PDF";
+
+        preview.appendChild(
+            iframe
+        );
+
+    }
+
+
+    preview.style.display =
+        "block";
+
+}
+
+
+function resetFile(){
+
+    fileInput.value = "";
+
+    selectedFileData =
+        null;
+
+    preview.innerHTML = "";
+
+    preview.style.display =
+        "none";
+
+    fileInfo.textContent =
+        "";
+
+    sendProofButton.disabled =
+        true;
+
+}
+
+
+function formatFileSize(bytes){
+
+    if(bytes < 1024){
+
+        return `${bytes} B`;
+
+    }
+
+
+    if(bytes < 1024 * 1024){
+
+        return `${(
+            bytes / 1024
+        ).toFixed(1)} KB`;
+
+    }
+
+
+    return `${(
+        bytes /
+        (1024 * 1024)
+    ).toFixed(2)} MB`;
+
+}
+
+
+/* =====================================================
+   ENVIAR COMPROVANTE
+===================================================== */
+
+sendProofButton.addEventListener(
+    "click",
+    ()=>{
+
+        if(!selectedFileData){
+
+            showToast(
+                "Selecione um comprovante.",
+                "warning"
+            );
+
+            return;
+
+        }
+
+
+        const session =
+            getSession();
+
+
+        if(
+            !session ||
+            session.role !== "client"
+        ){
+
+            showToast(
+                "Sessão expirada.",
+                "error"
+            );
+
+            logout();
+
+            return;
+
+        }
+
+
+        try{
+
+            const settings =
+                getJSON(
+                    STORAGE.SETTINGS,
+                    {}
+                );
+
+
+            const payments =
+                getJSON(
+                    STORAGE.PAYMENTS,
+                    []
+                );
+
+
+            const payment = {
+
+                id:
+                    generateId(),
+
+                userId:
+                    session.userId,
+
+                clientName:
+                    session.name,
+
+                phone:
+                    session.phone,
+
+                date:
+                    new Date()
+                        .toISOString(),
+
+                value:
+                    Number(
+                        settings.price
+                    ) || 0,
+
+                planName:
+                    settings.planName ||
+                    "Plano",
+
+                status:
+                    "Pendente",
+
+                file:{
+
+                    name:
+                        selectedFileData.name,
+
+                    type:
+                        selectedFileData.type,
+
+                    size:
+                        selectedFileData.size,
+
+                    data:
+                        selectedFileData.data
+
+                }
+
+            };
+
+
+            payments.unshift(
+                payment
+            );
+
+
+            if(
+                !setJSON(
+                    STORAGE.PAYMENTS,
+                    payments
+                )
+            ){
+
+                return;
+
+            }
+
+
+            resetFile();
+
+            renderClientHistory();
+
+
+            showToast(
+                "Comprovante enviado para validação.",
+                "success"
+            );
+
+        }catch(error){
+
+            console.error(error);
+
+            showToast(
+                "Não foi possível enviar o comprovante.",
+                "error"
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   HISTÓRICO CLIENTE
+===================================================== */
+
+function renderClientHistory(){
+
+    const container =
+        document.getElementById(
+            "clientHistory"
+        );
+
+
+    const session =
+        getSession();
+
+
+    if(!session){
+
+        return;
+
+    }
+
+
+    const payments =
+        getJSON(
+            STORAGE.PAYMENTS,
+            []
+        ).filter(
+            payment =>
+                payment.userId ===
+                session.userId
+        );
+
+
+    if(!payments.length){
+
+        container.innerHTML = `
+            <div class="empty">
+                Você ainda não enviou nenhum comprovante.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        payments.map(
+            payment=>{
+
+                const statusClass =
+                    payment.status
+                        .toLowerCase();
+
+
+                return `
+                    <div class="history-item">
+
+                        <div class="history-top">
+
+                            <strong>
+                                ${escapeHTML(
+                                    payment.planName
+                                )}
+                            </strong>
+
+                            <span
+                                class="status status-${statusClass}"
+                            >
+                                ${escapeHTML(
+                                    payment.status
+                                )}
+                            </span>
+
+                        </div>
+
+                        <div class="history-top">
+
+                            <span class="history-date">
+                                ${formatDate(
+                                    payment.date
+                                )}
+                            </span>
+
+                            <strong>
+                                ${formatCurrency(
+                                    payment.value
+                                )}
+                            </strong>
+
+                        </div>
+
+                        <div class="history-date">
+
+                            Arquivo:
+                            ${escapeHTML(
+                                payment.file?.name ||
+                                "N/A"
+                            )}
+
+                        </div>
+
+                    </div>
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =====================================================
+   ADMIN
+===================================================== */
+
+function loadAdminData(){
+
+    const settings =
+        getJSON(
+            STORAGE.SETTINGS,
+            {}
+        );
+
+
+    document.getElementById(
+        "planName"
+    ).value =
+        settings.planName || "";
+
+
+    document.getElementById(
+        "planPrice"
+    ).value =
+        settings.price ?? "";
+
+
+    document.getElementById(
+        "pixKey"
+    ).value =
+        settings.pixKey || "";
+
+
+    renderAdminStats();
+
+    renderPaymentsTable();
+
+}
+
+
+/* =====================================================
+   ABAS ADMIN
+===================================================== */
+
+document
+    .querySelectorAll(".admin-tab")
+    .forEach(tab=>{
+
+        tab.addEventListener(
+            "click",
+            ()=>{
+
+                document
+                    .querySelectorAll(".admin-tab")
+                    .forEach(item=>{
+                        item.classList.remove(
+                            "active"
+                        );
+                    });
+
+
+                tab.classList.add(
+                    "active"
+                );
+
+
+                const target =
+                    tab.dataset.adminTab;
+
+
+                document
+                    .getElementById(
+                        "settingsTab"
+                    )
+                    .classList.toggle(
+                        "hidden",
+                        target !== "settings"
+                    );
+
+
+                document
+                    .getElementById(
+                        "paymentsTab"
+                    )
+                    .classList.toggle(
+                        "hidden",
+                        target !== "payments"
+                    );
+
+            }
+        );
+
+    });
+
+
+/* =====================================================
+   SALVAR CONFIGURAÇÕES
+===================================================== */
+
+document.getElementById(
+    "settingsForm"
+).addEventListener(
+    "submit",
+    event=>{
+
+        event.preventDefault();
+
+        try{
+
+            const planName =
+                document.getElementById(
+                    "planName"
+                ).value.trim();
+
+
+            const price =
+                Number(
+                    document.getElementById(
+                        "planPrice"
+                    ).value
+                );
+
+
+            const pixKey =
+                document.getElementById(
+                    "pixKey"
+                ).value.trim();
+
+
+            if(!planName){
+
+                showToast(
+                    "Informe o nome do plano.",
+                    "warning"
+                );
+
+                return;
+
+            }
+
+
+            if(
+                !Number.isFinite(price) ||
+                price < 0
+            ){
+
+                showToast(
+                    "Informe um valor válido.",
+                    "warning"
+                );
+
+                return;
+
+            }
+
+
+            if(!pixKey){
+
+                showToast(
+                    "Informe a chave PIX.",
+                    "warning"
+                );
+
+                return;
+
+            }
+
+
+            const settings = {
+
+                planName,
+                price,
+                pixKey
+
+            };
+
+
+            if(
+                setJSON(
+                    STORAGE.SETTINGS,
+                    settings
+                )
+            ){
+
+                showToast(
+                    "Configurações atualizadas.",
+                    "success"
+                );
+
+                renderAdminStats();
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+            showToast(
+                "Erro ao salvar configurações.",
+                "error"
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   ESTATÍSTICAS
+===================================================== */
+
+function renderAdminStats(){
+
+    const payments =
+        getJSON(
+            STORAGE.PAYMENTS,
+            []
+        );
+
+
+    const pending =
+        payments.filter(
+            item =>
+                item.status ===
+                "Pendente"
+        ).length;
+
+
+    const approvedPayments =
+        payments.filter(
+            item =>
+                item.status ===
+                "Aprovado"
+        );
+
+
+    const approved =
+        approvedPayments.length;
+
+
+    const revenue =
+        approvedPayments.reduce(
+            (total,item)=>
+                total +
+                (
+                    Number(
+                        item.value
+                    ) || 0
+                ),
+            0
+        );
+
+
+    document.getElementById(
+        "statPending"
+    ).textContent =
+        pending;
+
+
+    document.getElementById(
+        "statApproved"
+    ).textContent =
+        approved;
+
+
+    document.getElementById(
+        "statRevenue"
+    ).textContent =
+        formatCurrency(
+            revenue
+        );
+
+}
+
+
+/* =====================================================
+   TABELA ADMIN
+===================================================== */
+
+function renderPaymentsTable(){
+
+    const tbody =
+        document.getElementById(
+            "paymentsTableBody"
+        );
+
+
+    const empty =
+        document.getElementById(
+            "adminEmpty"
+        );
+
+
+    const payments =
+        getJSON(
+            STORAGE.PAYMENTS,
+            []
+        );
+
+
+    if(!payments.length){
+
+        tbody.innerHTML = "";
+
+        empty.classList
+            .remove("hidden");
+
+        return;
+
+    }
+
+
+    empty.classList
+        .add("hidden");
+
+
+    tbody.innerHTML =
+        payments.map(
+            payment=>{
+
+                const statusClass =
+                    payment.status
+                        .toLowerCase();
+
+
+                const pending =
+                    payment.status ===
+                    "Pendente";
+
+
+                return `
+                    <tr>
+
+                        <td>
+                            <strong>
+                                ${escapeHTML(
+                                    payment.clientName
+                                )}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${formatPhone(
+                                payment.phone
+                            )}
+                        </td>
+
+                        <td>
+                            ${formatDate(
+                                payment.date
+                            )}
+                        </td>
+
+                        <td>
+                            <strong>
+                                ${formatCurrency(
+                                    payment.value
+                                )}
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span
+                                class="status status-${statusClass}"
+                            >
+                                ${escapeHTML(
+                                    payment.status
+                                )}
+                            </span>
+                        </td>
+
+                        <td>
+                            <button
+                                class="file-button"
+                                onclick="openProofModal('${payment.id}')"
+                                type="button"
+                            >
+                                👁 Ver Comprovante
+                            </button>
+                        </td>
+
+                        <td>
+
+                            <div class="action-group">
+
+                                ${
+                                    pending
+                                    ?
+                                    `
+                                        <button
+                                            class="success-button"
+                                            onclick="updatePaymentStatus('${payment.id}','Aprovado')"
+                                            type="button"
+                                        >
+                                            Aprovar
+                                        </button>
+
+                                        <button
+                                            class="danger-button"
+                                            onclick="updatePaymentStatus('${payment.id}','Recusado')"
+                                            type="button"
+                                        >
+                                            Recusar
+                                        </button>
+                                    `
+                                    :
+                                    `
+                                        <span
+                                            style="
+                                                color:#777;
+                                                font-size:11px;
+                                            "
+                                        >
+                                            Validado
+                                        </span>
+                                    `
+                                }
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =====================================================
+   STATUS PAGAMENTO
+===================================================== */
+
+function updatePaymentStatus(
+    paymentId,
+    newStatus
+){
+
+    try{
+
+        const payments =
+            getJSON(
+                STORAGE.PAYMENTS,
+                []
+            );
+
+
+        const payment =
+            payments.find(
+                item =>
+                    item.id ===
+                    paymentId
+            );
+
+
+        if(!payment){
+
+            showToast(
+                "Pagamento não encontrado.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if(
+            ![
+                "Aprovado",
+                "Recusado"
+            ].includes(newStatus)
+        ){
+
+            showToast(
+                "Status inválido.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        payment.status =
+            newStatus;
+
+
+        payment.validatedAt =
+            new Date()
+                .toISOString();
+
+
+        const session =
+            getSession();
+
+
+        payment.validatedBy =
+            session?.name ||
+            "Administrador";
+
+
+        if(
+            setJSON(
+                STORAGE.PAYMENTS,
+                payments
+            )
+        ){
+
+            renderAdminStats();
+
+            renderPaymentsTable();
+
+            showToast(
+                newStatus === "Aprovado"
+                    ? "Pagamento aprovado."
+                    : "Pagamento recusado.",
+                newStatus === "Aprovado"
+                    ? "success"
+                    : "warning"
+            );
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Não foi possível alterar o pagamento.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   MODAL COMPROVANTE
+===================================================== */
+
+function openProofModal(
+    paymentId
+){
+
+    const payments =
+        getJSON(
+            STORAGE.PAYMENTS,
+            []
+        );
+
+
+    const payment =
+        payments.find(
+            item =>
+                item.id ===
+                paymentId
+        );
+
+
+    if(
+        !payment ||
+        !payment.file ||
+        !payment.file.data
+    ){
+
+        showToast(
+            "Comprovante não encontrado.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const modal =
+        document.getElementById(
+            "proofModal"
+        );
+
+
+    const body =
+        document.getElementById(
+            "modalBody"
+        );
+
+
+    const title =
+        document.getElementById(
+            "modalTitle"
+        );
+
+
+    title.textContent =
+        `Comprovante • ${payment.clientName}`;
+
+
+    body.innerHTML = "";
+
+
+    if(
+        payment.file.type ===
+            "image/png" ||
+        payment.file.type ===
+            "image/jpeg"
+    ){
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+        image.src =
+            payment.file.data;
+
+        image.alt =
+            "Comprovante de pagamento";
+
+        body.appendChild(
+            image
+        );
+
+    }else if(
+        payment.file.type ===
+        "application/pdf"
+    ){
+
+        const iframe =
+            document.createElement(
+                "iframe"
+            );
+
+        iframe.src =
+            payment.file.data;
+
+        iframe.title =
+            "Comprovante PDF";
+
+        body.appendChild(
+            iframe
+        );
+
+    }
+
+
+    const info =
+        document.createElement(
+            "div"
+        );
+
+
+    info.className =
+        "modal-info";
+
+
+    info.textContent =
+        `${payment.file.name} • ${formatFileSize(payment.file.size)}`;
+
+
+    body.appendChild(
+        info
+    );
+
+
+    modal.classList.add(
+        "open"
+    );
+
+}
+
+
+function closeProofModal(){
+
+    const modal =
+        document.getElementById(
+            "proofModal"
+        );
+
+
+    const body =
+        document.getElementById(
+            "modalBody"
+        );
+
+
+    body.innerHTML = "";
+
+    modal.classList.remove(
+        "open"
+    );
+
+}
+
+
+/* =====================================================
+   FECHAR MODAL
+===================================================== */
+
+document.getElementById(
+    "proofModal"
+).addEventListener(
+    "click",
+    event=>{
+
+        if(
+            event.target.id ===
+            "proofModal"
+        ){
+
+            closeProofModal();
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "keydown",
+    event=>{
+
+        if(
+            event.key === "Escape"
+        ){
+
+            closeProofModal();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   SINCRONIZAÇÃO ENTRE ABAS
+===================================================== */
+
+window.addEventListener(
+    "storage",
+    event=>{
+
+        if(
+            event.key === STORAGE.PAYMENTS ||
+            event.key === STORAGE.SETTINGS
+        ){
+
+            const session =
+                getSession();
+
+
+            if(!session){
+
+                return;
+
+            }
+
+
+            if(
+                session.role === "client"
+            ){
+
+                loadClientData();
+
+            }
+
+
+            if(
+                session.role === "admin"
+            ){
+
+                renderAdminStats();
+
+                renderPaymentsTable();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   BOOT
+===================================================== */
+
+function boot(){
+
+    initializeStorage();
+
+
+    const session =
+        getSession();
+
+
+    if(!session){
+
+        loginScreen.classList
+            .remove("hidden");
+
+        clientScreen.classList
+            .add("hidden");
+
+        adminScreen.classList
+            .add("hidden");
+
+        return;
+
+    }
+
+
+    if(
+        session.role === "admin"
+    ){
+
+        /*
+         * Validação extra da sessão:
+         * garante que o administrador salvo
+         * ainda pertence à lista autorizada.
+         */
+
+        const validAdmin =
+            ADMINS.some(
+                admin =>
+                    normalizePhone(
+                        admin.phone
+                    ) ===
+                    normalizePhone(
+                        session.phone
+                    ) &&
+                    admin.name
+                        .toLowerCase() ===
+                        String(
+                            session.name
+                        ).toLowerCase()
+            );
+
+
+        if(!validAdmin){
+
+            logout();
+
+            return;
+
+        }
+
+
+        showAdmin();
+
+    }else if(
+        session.role === "client"
+    ){
+
+        showClient();
+
+    }else{
+
+        logout();
+
+    }
+
+}
+
+
+boot();
+
 </script>
+
 </body>
 </html>
+```
